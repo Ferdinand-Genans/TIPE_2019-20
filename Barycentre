@@ -1,0 +1,127 @@
+"""
+Barycentre de Wasserstein entre 4 images en utilisant comme poids l'interpolation bilinéaire,
+Inspiré de: convolutional Wasserstein Barycentert from POT :https://pythonot.github.io/auto_examples/barycenters/plot_convolutional_barycenter.html#sphx-glr-auto-examples-barycenters-plot-convolutional-barycenter-py
+"""
+import numpy as np
+import matplotlib.pyplot as plt
+import imageio
+import pylab as pl
+
+def BBS(Cost,N, reg, P, K, a, MaxCpt=100):
+    '''
+    Parameters
+    ----------
+    Cost : Matrice = d(x,y)^2     
+    N: nombre de points discretisant chaque mesures
+    reg: termede régularisation
+    P: matrice des K mesures de probas de \sum_{N} taille: N*N*K
+    K: Nombre de mesures de porabilites
+    a: taille du poids
+
+    Retourne p: barycentre des mesures de proba
+    -------
+    '''
+
+    Xi = np.exp(-Cost/reg)
+    p = Xi
+    v = np.ones((N,K))
+    u = np.ones((N,K))
+    for i in range(MaxCpt):
+        if(i%10==9):            # lignes juste pour voir l'avancement (inutile)
+            print((i+1),'%')
+        for k in range(K):
+            v[:,k]= P[:,k]/np.dot(Xi.T,u[:,k])
+        p= np.zeros(N)
+        for k in range(K):
+            p+=a[k]*np.log(np.dot(Xi, v[:,k]))
+        p = np.exp(p)
+        for k in range(K):
+            u[:,k]= p/np.dot(Xi,v[:,k])
+    return p
+
+def convert_weights_to_string(weights):
+    res = ""
+    for w in weights:
+        res +=str(w)+'-'
+    return res
+
+I1 = imageio.imread('D:/Optimal Transport/OT Programs/Images/marteau-80.png')
+I2 = imageio.imread('D:/Optimal Transport/OT Programs/Images/cercle-80.png')
+I3 = imageio.imread('D:/Optimal Transport/OT Programs/Images/etoile-80.png')
+I4 = imageio.imread('D:/Optimal Transport/OT Programs/Images/disque-80.png')
+
+
+I1T = np.ones((80,80))-I1/255
+I1Ts = (I1T.flatten())/I1T.sum()
+
+I2T = np.ones((80,80))-I2/255
+I2Ts = (I2T.flatten())/I2T.sum()
+
+I3T = np.ones((80,80))-I3/255
+I3Ts = (I3T.flatten())/I3T.sum()
+
+I4T = np.ones((80,80))-I4/255
+I4Ts = (I4T.flatten())/I4T.sum()
+
+
+P = np.vstack((I1Ts,I2Ts,I3Ts,I4Ts)).T
+
+
+# 4 cornes interpolated by linear interpolation
+c1 = np.array((1, 0, 0, 0))
+c2 = np.array((0, 1, 0, 0))
+c3 = np.array((0, 0, 1, 0))
+c4 = np.array((0, 0, 0, 1))
+
+
+
+
+nb_images = 5
+
+N = 80*80
+K = 4
+
+#Cout importé pour gagné du temps lors des mutliples tests
+Cost = np.load('D:/Optimal Transport/OT Programs/Programs/Wasserstein Barycenter/CostMatNumpy/matCost80.npy').reshape((N,N))
+Cost = Cost/Cost.max()
+
+reg = 25e-5
+
+pl.figure(figsize=(10, 10))
+
+cm='gray'
+for i in range(nb_images):
+    print(i)
+    for j in range(nb_images):
+        print(j)
+        pl.subplot(nb_images, nb_images, i * nb_images + j + 1)
+        tx = float(i) / (nb_images - 1)
+        ty = float(j) / (nb_images - 1)
+
+        # poids construiits par interpolation bilinéaire
+        tmp1 = (1 - tx) * c1 + tx * c2
+        tmp2 = (1 - tx) * c3 + tx * c4
+        weights = (1 - ty) * tmp1 + ty * tmp2
+
+        if i == 0 and j == 0:
+            pl.imshow(I1, cmap=cm)
+            pl.axis('off')
+        elif i == 0 and j == (nb_images - 1):
+            pl.imshow(I3, cmap=cm)
+            pl.axis('off')
+        elif i == (nb_images - 1) and j == 0:
+            pl.imshow(I2, cmap=cm)
+            pl.axis('off')
+        elif i == (nb_images - 1) and j == (nb_images - 1):
+            pl.imshow(I4, cmap=cm)
+            pl.axis('off')
+        else:
+            #call to barycenter computation
+            b = BBS(Cost, N,reg,P, K,weights).reshape((80,80))
+            Nb = np.ones((80,80))*b.max() - b
+            pl.imshow(Nb, cmap=cm)
+            pl.axis('off')
+            # name= convert_weights_to_string(weights)
+            # path = 'D:/Optimal Transport/OT Programs/Results/Wasserstein Barycenter/InterpolationLin/'+'InterW-'+name+'.png'
+            # plt.imsave(path, Nb, cmap='gray')
+pl.show()
