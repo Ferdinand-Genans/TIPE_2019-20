@@ -10,5 +10,8 @@ https://github.com/FerdinandGns/TIPE/blob/master/Barycentre
 Algorithme Bregman Barycenter Sinkhorn:
 https://github.com/FerdinandGns/TIPE/blob/master/Bregman%20Barycenter%20Sinkhorn
 
+Barycentre de Wasserstein entre deux gaussiennes:
+
+
 Algorithme pour réduire le nombre de couleurs d'une image, sans utiliser K-Mean mais des centroides aléatoires:
 https://github.com/FerdinandGns/TIPE/blob/master/Reduction_couleurs
