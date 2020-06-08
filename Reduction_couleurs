@@ -1,0 +1,84 @@
+""" 
+Random Means au lieu de  KMeans
+puis K Nearest Neighbor
+"""
+import imageio
+import numpy as np
+import random
+import matplotlib.image as mpimg
+
+
+####### KNN Functions #######################
+def euclidean(v1, v2):
+    x = (v1[0]-v2[0])*(v1[0]-v2[0])
+    y = (v1[1]-v2[1])*(v1[2]-v2[2])
+    z = (v1[2]-v2[2])*(v1[2]-v2[2])
+    return (x+y+z)
+
+def Nearest(vect, Centroids):
+    dist_min = 9999
+    min_index = -1
+    for i in range(len(Centroids)):
+        dist  = euclidean(vect,Centroids[i])
+        if(dist<dist_min):
+            dist_min = dist
+            min_index = i
+    return min_index
+
+def KNN(Image, Centroids):
+    Ret = Image
+    for i in range(250):
+        for j in range(250):
+            vect = [Image[i][j][0],Image[i][j][1],Image[i][j][2]]
+            index = Nearest(vect, Centroids)
+            Ret[i][j] = Centroids[index]
+    return Ret
+
+##############################################
+
+###### Random with no duplicates fct #########
+def are_equal(v1,v2): #size 3 for each
+    ret = True
+    for i in range(3):
+        ret = v1[i] == v2[i]
+        if (ret == False):
+            break
+    return False
+    
+def is_in_vector(value, vect):
+    ret = False
+    for i in vect:
+        ret = are_equal(i, value)
+        if (ret == True):
+            break
+    return ret
+        
+def random_no_duplicate(vect, size):
+    length = vect.shape[0]
+    ret = []
+    while(len(ret)< size):
+        n = random.randint(0,length-1)
+        value = vect[n]
+        if(is_in_vector(value, ret) == False):
+            ret.append(value)
+    return ret
+def convert_to_vect(Lis):
+    ret = []
+    for i in range(len(Lis)):
+        v = [Lis[i][0],Lis[i][1],Lis[i][2]]
+        ret.append(v)
+    return ret
+###########################################
+    
+path = 'D:/transferer Linux/Images-OT/summer-dream.jpg'
+I = imageio.imread(path).astype(np.float64) / 256
+
+### Computing Centroids ######
+I1vect = I.reshape((I.shape[0] * I.shape[1], I.shape[2]))
+Centroids = random_no_duplicate(I1vect, 1000)
+Centroids = convert_to_vect(Centroids)
+
+### Nouvelle image avec k couleurs ######
+print('KNN starts')
+New =  KNearestNeighbor(I, Centroids)
+mpimg.imsave("New.png", New)
