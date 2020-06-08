@@ -1,0 +1,77 @@
+"""
+Iterative bregman PRojection entre gaussiennes
+( Bregman barycenter Sinkhorn)
+"""
+import numpy as np
+import matplotlib.pylab as pl
+def BBS(Cost,N, reg, P, K, a, MaxCpt=3000):
+    '''
+    Parameters
+    ----------
+    Cost : Matrice = d(x,y)^2     
+    N: nombre de points discretisant chaque mesures
+    reg: termede rÃ©gularisation
+    P: matrice des K mesures de probas de \sum_{N} taille: N*N*K
+    K: Nombre de mesures de porabilites
+    a: taille du poids K*1
+
+    Retourne p: barycentre des mesures de proba
+
+    Returns p: Barycenter of the probability measures stored in P
+    -------
+    '''
+
+    Xi = np.exp(-Cost/reg)
+    p = Xi
+    #Xi.clip(1e-280,1)
+    v = np.ones((N,K))
+    u = np.ones((N,K))
+    for i in range(MaxCpt):
+        for k in range(K):
+            v[:,k]= P[:,k]/np.dot(Xi.T,u[:,k])
+        p= np.zeros(N)
+        for k in range(K):
+            p+=a[k]*np.log(np.dot(Xi, v[:,k]))
+        p = np.exp(p)
+        for k in range(K):
+            u[:,k]= p/np.dot(Xi,v[:,k])
+    return p
+
+def gaussienne(n,m,s):
+    x = np.arange(n, dtype=np.float64)
+    g = np.exp(-(x - m) ** 2 / (2 * s ** 2))
+    return g / g.sum()
+
+N = 100  # nb points
+
+#postion des points
+x = np.arange(N, dtype=np.float64)
+
+# Gaussian distributions
+p1 = gaussienne(N, m=20, s=5)  # m= mean, s= std
+p2 = gaussienne(N, m=60, s=4)
+
+# creating matrix A containing all distributions
+P = np.vstack((p1, p2)).T
+K=2
+
+
+# coput matrice + normalisation
+M = np.load('D:/OT/programs/WassBary/Cout_Gauss_NB100.npy') #cout chargé car souvent utilisé
+M /= M.max()
+
+reg = 1e-3
+Wass = []
+for i in range(1,10):
+    a=[1-0.1*i, 0.1*i]
+    bary_wass = BBS(M, N,reg, P,K,a)
+    Wass.append(bary_wass)
+
+
+
+pl.figure(1)
+pl.subplot(2, 1, 1)
+for i in range(len(Wass)):
+    pl.plot(x, Wass[i], 'g', label='Wasserstein')
+pl.plot(x, p1, 'b', label='a1')
+pl.plot(x, p2, 'r', label='a2')
