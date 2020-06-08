@@ -1,0 +1,33 @@
+import numpy as np
+def BBS(Cost,N, reg, P, K, a, MaxCpt=3000):
+    '''
+    Parameters
+    ----------
+    Cost : Matrice = d(x,y)^2     
+    N: nombre de points discretisant chaque mesures
+    reg: termede rÃ©gularisation
+    P: matrice des K mesures de probas de \sum_{N} taille: N*N*K
+    K: Nombre de mesures de porabilites
+    a: taille du poids K*1
+
+    Retourne p: barycentre des mesures de proba
+
+    Returns p: Barycenter of the probability measures stored in P
+    -------
+    '''
+
+    Xi = np.exp(-Cost/reg)
+    p = Xi
+    #Xi.clip(1e-280,1)
+    v = np.ones((N,K))
+    u = np.ones((N,K))
+    for i in range(MaxCpt):
+        for k in range(K):
+            v[:,k]= P[:,k]/np.dot(Xi.T,u[:,k])
+        p= np.zeros(N)
+        for k in range(K):
+            p+=a[k]*np.log(np.dot(Xi, v[:,k]))
+        p = np.exp(p)
+        for k in range(K):
+            u[:,k]= p/np.dot(Xi,v[:,k])
+    return p
