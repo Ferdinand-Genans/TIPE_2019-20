@@ -6,3 +6,6 @@ https://github.com/FerdinandGns/TIPE/tree-save/master/Couleur_Git.py
 
 Barycentre de Wasserstein entre images 2D
 https://github.com/FerdinandGns/TIPE/blob/master/Barycentre
+
+Algorithme Bregman Barycenter Sinkhorn:
+https://github.com/FerdinandGns/TIPE/blob/master/Bregman%20Barycenter%20Sinkhorn
