@@ -1,4 +1,7 @@
 # TIPE
+
+Lien du rapport(https://github.com/Ferdinand-Genans/TIPE_2019-20/blob/master/Transport_Optimal_F_Genans.pdf)
+
 Algorithmes fait pendant mon TIPE année 2019-2020
 
 Transport optimal des histogrammes de couleurs de deux images:
