@@ -11,8 +11,8 @@ https://github.com/FerdinandGns/TIPE/tree-save/master/Couleur_Git.py
 Algorithme pour réduire le nombre de couleurs d'une image, sans utiliser K-Mean mais des centroides aléatoires:
 https://github.com/FerdinandGns/TIPE/blob/master/Reduction_couleurs
 
-Barycentre de Wasserstein entre images 2D:
-https://github.com/FerdinandGns/TIPE/blob/master/Barycentre
+Transport de couleurs: 
+https://github.com/Ferdinand-Genans/TIPE_2019-20/blob/master/Transport_Couleur.py
 
 Algorithme Bregman Barycenter Sinkhorn:
 https://github.com/FerdinandGns/TIPE/blob/master/Bregman%20Barycenter%20Sinkhorn
